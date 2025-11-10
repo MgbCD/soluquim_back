@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/pedidos")
 public class PedidoController {
@@ -39,7 +40,16 @@ public class PedidoController {
     @GetMapping
     public List<PedidoResponseDTO> listarPedidos(@RequestParam(defaultValue = "0") int page,
                                                  @RequestParam(defaultValue = "10") int size) {
-        return listarPedidosService.listarPedidos(page, size);
+        List<PedidoResponseDTO> pedidos = listarPedidosService.listarPedidos(page,size);
+        pedidos.forEach(p -> {
+            Empresa empresa = empresaRepository.buscarPorId(p.getId())
+            .orElse(null);
+            if (empresa != null){
+                p.setEmpresa(empresa.getNombre());
+            }
+
+        });
+        return pedidos;
     }
 
     @GetMapping("/{id}")
